@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Calendar from "react-calendar";
+import BookingConfirmation from "./BookingConf";
 
 const BookingForm = () => {
   const [name, setName] = useState("");
@@ -10,20 +11,32 @@ const BookingForm = () => {
   const [date, setDate] = useState(new Date());
   const [error, setError] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState(null);
 
   const reservationTime = [
-    "1:30 AM", "3:30 AM", "5:30 AM",
-    "7:30 PM", "9:30 PM", "11:30 PM"
+    "1:30 AM",
+    "3:30 AM",
+    "5:30 AM",
+    "7:30 PM",
+    "9:30 PM",
+    "11:30 PM",
   ];
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (name === "" || email === "" || number === "" || guest === "" || !selectedTime) {
+    if (
+      name === "" ||
+      email === "" ||
+      number === "" ||
+      guest === "" ||
+      !selectedTime
+    ) {
       return setError("All fields are required");
     }
 
     try {
-      const response = await fetch("/api/book", {
+      const response = await fetch("http://localhost:3000/api/book/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,20 +46,30 @@ const BookingForm = () => {
           email,
           number,
           guest,
-          date: date.toISOString(),
+          date,
           time: selectedTime,
         }),
       });
       if (response.ok) {
+        setBookingDetails({
+          name,
+          email,
+          number,
+          guest,
+          date: date.toISOString(),
+          time: selectedTime,
+        });
+        setShowConfirmation(true);
+
         setName("");
         setNumber("");
         setEmail("");
         setGuest("");
         setSelectedTime("");
         setError("");
-        alert("Booking successful!");
       } else {
-        setError("Failed to book. Please try again.");
+        const { message } = await response.json();
+        setError(message || "Failed to book. Please try again.");
       }
     } catch (error) {
       console.error(error);
@@ -56,11 +79,21 @@ const BookingForm = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4 md:p-6 lg:p-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Table Booking Form</h1>
+      {showConfirmation && (
+        <BookingConfirmation
+          booking={bookingDetails}
+          onClose={() => setShowConfirmation(false)}
+        />
+      )}
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">
+        Table Booking Form
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
             <input
               type="text"
               required
@@ -70,7 +103,9 @@ const BookingForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Contact Number</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Contact Number
+            </label>
             <input
               type="tel"
               required
@@ -80,7 +115,9 @@ const BookingForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               type="email"
               required
@@ -90,7 +127,9 @@ const BookingForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Number of Guests</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Number of Guests
+            </label>
             <input
               type="number"
               required
@@ -103,7 +142,9 @@ const BookingForm = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">Select Date</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-800">
+              Select Date
+            </h2>
             <Calendar
               value={date}
               onChange={setDate}
@@ -111,16 +152,19 @@ const BookingForm = () => {
             />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">Select Time</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-800">
+              Select Time
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {reservationTime.map((time) => (
                 <button
                   key={time}
                   type="button"
                   className={`px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 
-                    ${selectedTime === time 
-                      ? "bg-emerald-500 shadow-custom-green text-white shadow-lg transform scale-105" 
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-500 hover:shadow-md"
+                    ${
+                      selectedTime === time
+                        ? "bg-emerald-500 shadow-custom-green text-white shadow-lg transform scale-105"
+                        : "bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-500 hover:shadow-md"
                     }`}
                   onClick={() => setSelectedTime(time)}
                   aria-label={`Select time ${time}`}
@@ -133,7 +177,9 @@ const BookingForm = () => {
         </div>
 
         {error && (
-          <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-lg">{error}</div>
+          <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-lg">
+            {error}
+          </div>
         )}
 
         <button
