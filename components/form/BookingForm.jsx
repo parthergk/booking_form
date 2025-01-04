@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Calendar from "react-calendar";
-import BookingConfirmation from "./BookingConf";
+import BookingConfirmation from "../BookingConf";
 
 const BookingForm = () => {
   const [name, setName] = useState("");
@@ -36,7 +36,7 @@ const BookingForm = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/book/create", {
+      const response = await fetch("https://booking-server-azure-psi.vercel.app/api/book/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
