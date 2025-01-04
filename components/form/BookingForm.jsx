@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import BookingConfirmation from "../BookingConf";
@@ -13,6 +13,7 @@ const BookingForm = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [isBooking, setIsBooking] = useState(false); 
 
   const reservationTime = [
     "1:30 AM",
@@ -36,6 +37,7 @@ const BookingForm = () => {
     }
 
     try {
+      setIsBooking(true); 
       const response = await fetch("https://booking-server-azure-psi.vercel.app/api/book/create", {
         method: "POST",
         headers: {
@@ -50,17 +52,20 @@ const BookingForm = () => {
           time: selectedTime,
         }),
       });
+
       if (response.ok) {
-        setBookingDetails({
+        const bookingData = {
           name,
           email,
           number,
           guest,
           date: date.toISOString(),
           time: selectedTime,
-        });
-        setShowConfirmation(true);
+        };
 
+        setBookingDetails(bookingData); 
+        setShowConfirmation(true); 
+        
         setName("");
         setNumber("");
         setEmail("");
@@ -74,6 +79,8 @@ const BookingForm = () => {
     } catch (error) {
       console.error(error);
       setError("Something went wrong. Please try again.");
+    } finally {
+      setIsBooking(false); 
     }
   }
 
@@ -85,15 +92,11 @@ const BookingForm = () => {
           onClose={() => setShowConfirmation(false)}
         />
       )}
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">
-        Table Booking Form
-      </h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">Table Booking Form</h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Full Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Full Name</label>
             <input
               type="text"
               required
@@ -103,9 +106,7 @@ const BookingForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Contact Number
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Contact Number</label>
             <input
               type="tel"
               required
@@ -115,9 +116,7 @@ const BookingForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
               required
@@ -127,13 +126,11 @@ const BookingForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Number of Guests
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Number of Guests</label>
             <input
               type="number"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg  hover:border-emerald-500 outline-none transition-colors bg-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:border-emerald-500 outline-none transition-colors bg-white"
               value={guest}
               onChange={(e) => setGuest(e.target.value)}
             />
@@ -142,9 +139,7 @@ const BookingForm = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Select Date
-            </h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-800">Select Date</h2>
             <Calendar
               value={date}
               onChange={setDate}
@@ -152,19 +147,16 @@ const BookingForm = () => {
             />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Select Time
-            </h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-800">Select Time</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {reservationTime.map((time) => (
                 <button
                   key={time}
                   type="button"
                   className={`px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 
-                    ${
-                      selectedTime === time
-                        ? "bg-emerald-500 shadow-custom-green text-white shadow-lg transform scale-105"
-                        : "bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-500 hover:shadow-md"
+                    ${selectedTime === time
+                      ? "bg-emerald-500 shadow-custom-green text-white shadow-lg transform scale-105"
+                      : "bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-500 hover:shadow-md"
                     }`}
                   onClick={() => setSelectedTime(time)}
                   aria-label={`Select time ${time}`}
@@ -184,9 +176,9 @@ const BookingForm = () => {
 
         <button
           type="submit"
-          className="w-full md:w-auto px-8 py-4 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-        >
-          Book
+          disabled={isBooking}
+          className={`${isBooking ? 'bg-emerald-400' : 'bg-emerald-500'} w-full md:w-auto px-8 py-4 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}>
+          {isBooking ? 'Booking...' : 'Book'}
         </button>
       </form>
     </div>
