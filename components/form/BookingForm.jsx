@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import BookingConfirmation from "../BookingConf";
+import { getReservationTime } from "@/helper/time";
 
 const BookingForm = () => {
   const [name, setName] = useState("");
@@ -15,14 +16,7 @@ const BookingForm = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
   const [isBooking, setIsBooking] = useState(false); 
 
-  const reservationTime = [
-    "1:30 AM",
-    "3:30 AM",
-    "5:30 AM",
-    "7:30 PM",
-    "9:30 PM",
-    "11:30 PM",
-  ];
+  const reservationTime = getReservationTime(date);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -48,7 +42,7 @@ const BookingForm = () => {
           email,
           number,
           guest,
-          date,
+          date: date.toLocaleDateString(),
           time: selectedTime,
         }),
       });
