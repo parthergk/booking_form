@@ -9,15 +9,14 @@ const BookingsList = () => {
 
   useEffect(() => {
     fetchBookings();
-  }, [bookings]);
+  }, []);
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/book');
+      const response = await fetch('https://booking-server-azure-psi.vercel.app/api/book');
       if (response.ok) {
         const data = await response.json();
         setBookings(data);
-        
       } else {
         setError("Failed to fetch bookings");
       }
@@ -27,7 +26,7 @@ const BookingsList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   if (loading) {
     return (
@@ -66,24 +65,24 @@ const BookingsList = () => {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <span className="font-semibold text-lg text-gray-800">
-                      {booking.name}
+                      {booking.customerName}
                     </span>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <Phone className="w-4 h-4" />
-                      <span>{booking.number}</span>
+                      <span>{booking.contactNumber}</span>
                     </div>
                     
                     <div className="flex items-center space-x-2 text-gray-600">
                       <Mail className="w-4 h-4" />
-                      <span>{booking.email}</span>
+                      <span>{booking.emailAddress}</span>
                     </div>
                     
                     <div className="flex items-center space-x-2 text-gray-600">
                       <Users className="w-4 h-4" />
-                      <span>{booking.guest} guests</span>
+                      <span>{booking.guestCount} guests</span>
                     </div>
                   </div>
                 </div>
@@ -91,12 +90,12 @@ const BookingsList = () => {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Calendar className="w-4 h-4" />
-                    <span>{new Date(booking.date).toLocaleDateString()}</span>
+                    <span>{new Date(booking.bookingTime).toLocaleDateString()}</span>
                   </div>
                   
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Clock className="w-4 h-4" />
-                    <span>{booking.time}</span>
+                    <span>{new Date(booking.bookingTime).toLocaleTimeString()}</span>
                   </div>
                   
                   <div className="inline-flex px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">

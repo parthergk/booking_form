@@ -32,7 +32,7 @@ const BookingForm = () => {
 
     try {
       setIsBooking(true); 
-      const response = await fetch("http://localhost:3000/api/book/create", {
+      const response = await fetch("https://booking-server-azure-psi.vercel.app/api/book/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
